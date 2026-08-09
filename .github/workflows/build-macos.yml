@@ -1,0 +1,52 @@
+name: Build macOS app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    paths:
+      - "LogiPetMac/**"
+      - "scripts/package-macos.sh"
+      - ".github/workflows/build-macos.yml"
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Apple Silicon
+            runner: macos-15
+            output: LogiPet-macOS-Apple-Silicon
+          - name: Intel
+            runner: macos-15-intel
+            output: LogiPet-macOS-Intel
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        working-directory: LogiPetMac
+        run: swift test
+      - name: Build release
+        working-directory: LogiPetMac
+        run: swift build -c release
+      - name: Package app
+        shell: bash
+        run: |
+          BIN_PATH="$(cd LogiPetMac && swift build -c release --show-bin-path)"
+          RESOURCE_BUNDLE="$(find "$BIN_PATH" -maxdepth 1 -type d -name '*LogiPetMac*.bundle' | head -1)"
+          test -n "$RESOURCE_BUNDLE"
+          bash scripts/package-macos.sh "$BIN_PATH/LogiPetMac" "$RESOURCE_BUNDLE" "${{ matrix.output }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output }}
+          path: dist/${{ matrix.output }}.zip
+          if-no-files-found: error
+      - name: Attach to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "dist/${{ matrix.output }}.zip" --clobber

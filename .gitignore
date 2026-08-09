@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+test-plugin-link/
+logipet-screen.png
+logipet-crop.png
+logipet-*-qa.png
+logipet-*qa*.png
+dist/LogiPet/
+dist/LogiPet.lplug4
+LogiPetMac/.build/
+.DS_Store
+dist/*.app/
+dist/LogiPet-macOS-*.zip
