@@ -11,3 +11,4 @@ LogiPetMac/.build/
 .DS_Store
 dist/*.app/
 dist/LogiPet-macOS-*.zip
+release-artifacts/
