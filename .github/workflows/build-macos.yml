@@ -2,6 +2,11 @@ name: Build macOS app
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Optional existing release tag to update"
+        required: false
+        type: string
   push:
     branches: [master, main]
     paths:
@@ -10,6 +15,9 @@ on:
       - ".github/workflows/build-macos.yml"
   release:
     types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -46,7 +54,8 @@ jobs:
           path: dist/${{ matrix.output }}.zip
           if-no-files-found: error
       - name: Attach to release
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || inputs.release_tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" "dist/${{ matrix.output }}.zip" --clobber
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" "dist/${{ matrix.output }}.zip" --clobber
