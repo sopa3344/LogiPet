@@ -1,0 +1,32 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    paths:
+      - "LogiPetApp/**"
+      - ".github/workflows/build-windows.yml"
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Publish Windows app
+        shell: pwsh
+        run: dotnet publish .\LogiPetApp\LogiPetApp.csproj -c Release -o .\dist\LogiPet-Windows
+      - name: Include notices and plugin
+        shell: pwsh
+        run: |
+          Copy-Item .\THIRD_PARTY_NOTICES.md .\dist\LogiPet-Windows\
+          Copy-Item .\LogiPet.lplug4 .\dist\LogiPet-Windows\
+          Compress-Archive -Path .\dist\LogiPet-Windows\* -DestinationPath .\dist\LogiPet-Windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LogiPet-Windows
+          path: dist/LogiPet-Windows.zip
+          if-no-files-found: error
