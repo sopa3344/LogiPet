@@ -13,6 +13,8 @@ private enum XP {
 
 struct PetWindowView: View {
     @EnvironmentObject private var model: PetModel
+    @State private var renamePresented = false
+    @State private var draftName = ""
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -21,7 +23,7 @@ struct PetWindowView: View {
                 .padding(5)
 
             if model.balloonVisible {
-                SpeechBalloon(text: model.balloonText) {
+                SpeechBalloon(name: model.petName, text: model.balloonText) {
                     model.balloonVisible = false
                 } showActivity: {
                     model.balloonVisible = false
@@ -41,6 +43,13 @@ struct PetWindowView: View {
         }
         .frame(width: 252, height: 320, alignment: .bottom)
         .animation(.easeOut(duration: 0.14), value: model.balloonVisible)
+        .alert("강아지 이름", isPresented: $renamePresented) {
+            TextField("이름", text: $draftName)
+            Button("저장") { model.setPetName(draftName) }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("MX의 친구를 뭐라고 부를까요? 최대 8글자까지 저장돼요.")
+        }
     }
 
     private var mainWindow: some View {
@@ -66,7 +75,7 @@ struct PetWindowView: View {
     private var titleBar: some View {
         HStack(spacing: 5) {
             PixelDogIcon().frame(width: 16, height: 16)
-            Text("LogiPet - 모찌")
+            Text("LogiPet - \(model.petName)")
                 .font(.custom("Galmuri11", size: 11).weight(.bold))
                 .foregroundStyle(.white)
             Spacer()
@@ -87,7 +96,7 @@ struct PetWindowView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { model.talk() }
                 .contextMenu {
-                    Button("모찌에게 말 걸기") { model.talk() }
+                    Button("\(model.petName)에게 말 걸기") { model.talk() }
                     Divider()
                     Button("간식으로 축하") { model.perform("snack") }
                     Button("물 주기") { model.perform("water") }
@@ -96,6 +105,10 @@ struct PetWindowView: View {
                     Button("잠깐 놀기") { model.perform("play") }
                     Divider()
                     Button("오늘 활동") { model.perform("journal") }
+                    Button("이름 바꾸기…") {
+                        draftName = model.petName
+                        renamePresented = true
+                    }
                 }
         }
     }
@@ -188,6 +201,7 @@ private struct XPGroupBox<Content: View>: View {
 }
 
 private struct SpeechBalloon: View {
+    let name: String
     let text: String
     let close: () -> Void
     let showActivity: () -> Void
@@ -196,7 +210,7 @@ private struct SpeechBalloon: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("모찌").foregroundStyle(Color(red: 0, green: 51/255, blue: 153/255)).fontWeight(.bold)
+                    Text(name).foregroundStyle(Color(red: 0, green: 51/255, blue: 153/255)).fontWeight(.bold)
                     Spacer()
                     Button("×", action: close).buttonStyle(.plain)
                 }
@@ -222,7 +236,7 @@ private struct StatsPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("▦  모찌 상태").foregroundStyle(.white).fontWeight(.bold)
+                Text("▦  \(model.petName) 상태").foregroundStyle(.white).fontWeight(.bold)
                 Spacer()
                 Button("×") { model.showStats = false }.buttonStyle(XPTitleButtonStyle())
             }

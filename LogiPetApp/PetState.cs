@@ -5,6 +5,7 @@ namespace LogiPet;
 
 public sealed class PetState
 {
+    public string PetName { get; set; } = "맥스";
     public double Hunger { get; set; } = 72;
     public double Mood { get; set; } = 78;
     public bool IsSleeping { get; set; }
@@ -37,6 +38,7 @@ public sealed class PetState
                 return new PetState();
 
             var state = JsonSerializer.Deserialize<PetState>(File.ReadAllText(StatePath)) ?? new PetState();
+            state.PetName = NormalizePetName(state.PetName);
             var elapsedHours = Math.Clamp((DateTime.UtcNow - state.LastUpdatedUtc).TotalHours, 0, 24);
             state.Hunger = Math.Clamp(state.Hunger - elapsedHours * 4, 0, 100);
             state.Mood = Math.Clamp(state.Mood - elapsedHours * 2, 0, 100);
@@ -47,6 +49,14 @@ public sealed class PetState
         {
             return new PetState();
         }
+    }
+
+    public static string NormalizePetName(string? name)
+    {
+        var value = (name ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(value))
+            return "맥스";
+        return value.Length > 8 ? value[..8] : value;
     }
 
     public void EnsureToday()

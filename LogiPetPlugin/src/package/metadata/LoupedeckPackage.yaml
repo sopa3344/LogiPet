@@ -12,13 +12,13 @@ name: LogiPet
 displayName: LogiPet Desktop Companion
 
 # Short description of the plugin.
-description: Walk, celebrate, stretch, and share your mouse activity with Mochi.
+description: Walk, celebrate, stretch, and share your mouse activity with Max.
 
 # Name of the plugin library file.
 pluginFileName: LogiPetPlugin.dll
 
 # Plugin version.
-version: 1.3
+version: 1.4
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: LogiPet Demo
@@ -66,7 +66,7 @@ licenseUrl: https://opensource.org/licenses/MIT
 # URL of the support page where the users can send improvement suggestions and report bugs.
 # The URL is shown in Loupedeck Marketplace. The page can be for example a GitHub issues page.
 # NOTE: This setting is recommended when publishing the plugin in Loupedeck Marketplace.
-#supportPageUrl: https://github.com/myusername/myplugin/issues
+supportPageUrl: https://github.com/sopa3344/LogiPet/issues
 
 # URL of the plugin homepage. The URL is shown in Loupedeck Marketplace.
-#homePageUrl: https://github.com/myusername/myplugin
+homePageUrl: https://github.com/sopa3344/LogiPet

@@ -5,75 +5,84 @@ namespace Loupedeck.LogiPetPlugin
     public abstract class PetCommand : PluginDynamicCommand
     {
         private readonly String _action;
+        private readonly String _iconName;
+        private BitmapImage _icon;
 
-        protected PetCommand(String displayName, String description, String action)
-            : base(displayName, description, "LogiPet") => this._action = action;
+        protected PetCommand(String displayName, String description, String action, String iconName)
+            : base(displayName, description, "LogiPet")
+        {
+            this._action = action;
+            this._iconName = iconName;
+        }
 
         protected override void RunCommand(String actionParameter) => PetBridge.Send(this._action);
+
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+            => this._icon ??= PluginResources.ReadImage($"{this._iconName}.png");
     }
 
     public sealed class FeedPetCommand : PetCommand
     {
-        public FeedPetCommand() : base("Celebrate with Snack", "Celebrate today's activity with Mochi", "snack") { }
+        public FeedPetCommand() : base("Celebrate with Snack", "Celebrate today's activity with Max", "snack", "snack") { }
     }
 
     public sealed class PlayWithPetCommand : PetCommand
     {
-        public PlayWithPetCommand() : base("High Five", "Celebrate the latest shared activity", "highfive") { }
+        public PlayWithPetCommand() : base("High Five", "Celebrate the latest shared activity", "highfive", "highfive") { }
     }
 
     public sealed class SleepPetCommand : PetCommand
     {
-        public SleepPetCommand() : base("Stretch Together", "Take a short stretch with Mochi", "stretch") { }
+        public SleepPetCommand() : base("Stretch Together", "Take a short stretch with Max", "stretch", "stretch") { }
     }
 
     public sealed class PetStatusCommand : PetCommand
     {
-        public PetStatusCommand() : base("Quick Play", "Take a playful ten-second break", "play") { }
+        public PetStatusCommand() : base("Quick Play", "Take a playful ten-second break", "play", "play") { }
     }
 
     public sealed class RefreshBatteryCommand : PetCommand
     {
-        public RefreshBatteryCommand() : base("Today's Activity", "Open today's mouse activity counters", "journal") { }
+        public RefreshBatteryCommand() : base("Today's Activity", "Open today's mouse activity counters", "journal", "journal") { }
     }
 
     public sealed class GiveWaterCommand : PetCommand
     {
-        public GiveWaterCommand() : base("Give Water", "Let Mochi drink some water", "water") { }
+        public GiveWaterCommand() : base("Give Water", "Let Max drink some water", "water", "water") { }
     }
 
     public sealed class ComeHereCommand : PetCommand
     {
-        public ComeHereCommand() : base("Come Here", "Call Mochi over to you", "come") { }
+        public ComeHereCommand() : base("Come Here", "Call Max over to you", "come", "come") { }
     }
 
     public sealed class ZoomiesCommand : PetCommand
     {
-        public ZoomiesCommand() : base("Zoomies", "Let Mochi run around excitedly", "zoomies") { }
+        public ZoomiesCommand() : base("Zoomies", "Let Max run around excitedly", "zoomies", "zoomies") { }
     }
 
     public sealed class SpeakCommand : PetCommand
     {
-        public SpeakCommand() : base("Speak", "Ask Mochi to bark", "speak") { }
+        public SpeakCommand() : base("Speak", "Ask Max to bark", "speak", "speak") { }
     }
 
     public sealed class SitCommand : PetCommand
     {
-        public SitCommand() : base("Sit", "Ask Mochi to sit and wait", "sit") { }
+        public SitCommand() : base("Sit", "Ask Max to sit and wait", "sit", "sit") { }
     }
 
     public sealed class LieDownCommand : PetCommand
     {
-        public LieDownCommand() : base("Lie Down", "Ask Mochi to lie down", "lie") { }
+        public LieDownCommand() : base("Lie Down", "Ask Max to lie down", "lie", "lie") { }
     }
 
     public sealed class TakeNapCommand : PetCommand
     {
-        public TakeNapCommand() : base("Take a Nap", "Let Mochi take a short nap", "nap") { }
+        public TakeNapCommand() : base("Take a Nap", "Let Max take a short nap", "nap", "nap") { }
     }
 
     public sealed class ScratchCommand : PetCommand
     {
-        public ScratchCommand() : base("Scratch", "Play Mochi's scratching animation", "scratch") { }
+        public ScratchCommand() : base("Scratch", "Play Max's scratching animation", "scratch", "scratch") { }
     }
 }

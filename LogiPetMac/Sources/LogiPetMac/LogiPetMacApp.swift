@@ -27,7 +27,7 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "LogiPet - 모찌"
+        window.title = "LogiPet - \(model.petName)"
         window.isOpaque = false
         window.backgroundColor = .clear
         window.hasShadow = false

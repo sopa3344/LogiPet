@@ -39,10 +39,11 @@ struct DailyState: Codable {
 
 @MainActor
 final class PetModel: ObservableObject {
+    @Published var petName = UserDefaults.standard.string(forKey: "petName") ?? "맥스"
     @Published var state = DailyState()
     @Published var batteryLevel: Int?
     @Published var batteryConnected = false
-    @Published var speech = "모찌가 준비하는 중…"
+    @Published var speech = "맥스, 준비 중…"
     @Published var balloonText = "안녕! 오늘도 옆에 있을게."
     @Published var balloonVisible = false
     @Published var showStats = false
@@ -77,10 +78,24 @@ final class PetModel: ObservableObject {
     var dateText: String { now.formatted(.dateTime.year().month().day().weekday(.wide)) }
     var batteryText: String { batteryLevel.map { "\($0)%" } ?? "--%" }
 
-    func attach(window: NSWindow) { self.window = window }
+    func attach(window: NSWindow) {
+        self.window = window
+        window.title = "LogiPet - \(petName)"
+    }
+
+    func setPetName(_ rawValue: String) {
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let value = String(trimmed.prefix(8))
+        petName = value
+        UserDefaults.standard.set(value, forKey: "petName")
+        window?.title = "LogiPet - \(value)"
+        say("이제 내 이름은 \(value)야! 잘 부탁해.")
+    }
 
     func start() {
         loadState()
+        speech = "\(petName), 준비 중…"
         inputTracker = MouseInputTracker { [weak self] sample in
             Task { @MainActor in self?.record(sample) }
         }

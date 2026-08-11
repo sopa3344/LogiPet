@@ -1,7 +1,7 @@
 <Window x:Class="LogiPet.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="LogiPet - 모찌" Width="252" Height="230"
+        Title="LogiPet - 맥스" Width="252" Height="230"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -41,7 +41,7 @@
               <Rectangle Fill="#9A5B27" Width="2" Height="3" Canvas.Left="4" Canvas.Top="11"/>
               <Rectangle Fill="#9A5B27" Width="2" Height="3" Canvas.Left="10" Canvas.Top="11"/>
             </Canvas>
-            <TextBlock Grid.Column="1" Text="LogiPet - 모찌" FontFamily="{StaticResource GalmuriFont}"
+            <TextBlock x:Name="AppTitleText" Grid.Column="1" Text="LogiPet - 맥스" FontFamily="{StaticResource GalmuriFont}"
                        FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"
                        TextOptions.TextRenderingMode="Aliased"/>
             <Button Grid.Column="2" Style="{StaticResource XpTitleButton}" Content="×"
@@ -158,7 +158,7 @@
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <Grid>
               <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-              <TextBlock Text="모찌" FontFamily="{StaticResource GalmuriFont}" FontSize="11"
+              <TextBlock x:Name="BalloonNameText" Text="맥스" FontFamily="{StaticResource GalmuriFont}" FontSize="11"
                          FontWeight="Bold" Foreground="#003399"/>
               <Button Grid.Column="1" Content="×" Width="16" Height="16" Padding="0" Margin="5,-3,-2,0"
                       FontFamily="Tahoma" FontSize="11" Background="Transparent" BorderThickness="0"
@@ -187,7 +187,7 @@
         <Border.Effect><DropShadowEffect BlurRadius="0" ShadowDepth="3" Direction="315" Color="#70000000"/></Border.Effect>
         <StackPanel>
           <Button Style="{StaticResource XpMenuButton}" Click="Talk_Click">
-            <DockPanel><Image Source="Assets/Icons/info.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="모찌에게 말 걸기" VerticalAlignment="Center"/></DockPanel>
+            <DockPanel><Image Source="Assets/Icons/info.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock x:Name="TalkMenuText" Text="맥스에게 말 걸기" VerticalAlignment="Center"/></DockPanel>
           </Button>
           <Border Height="1" Background="{StaticResource XpShadow}" Margin="3,2"/>
           <Button Style="{StaticResource XpMenuButton}" Click="Feed_Click">
@@ -206,7 +206,36 @@
           <Button Style="{StaticResource XpMenuButton}" Click="Status_Click">
             <DockPanel><Image Source="Assets/Icons/info.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="오늘 활동" VerticalAlignment="Center"/></DockPanel>
           </Button>
+          <Button Style="{StaticResource XpMenuButton}" Click="Rename_Click">
+            <DockPanel><Image Source="Assets/Icons/settings.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="이름 바꾸기..." VerticalAlignment="Center"/></DockPanel>
+          </Button>
         </StackPanel>
+      </Border>
+    </Popup>
+
+    <Popup x:Name="NamePopup" PlacementTarget="{Binding ElementName=MainWindowFrame}"
+           Placement="Top" VerticalOffset="-5" AllowsTransparency="True" StaysOpen="True">
+      <Border Width="252" Style="{StaticResource XpWindowFrame}">
+        <Grid>
+          <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="82"/><RowDefinition Height="33"/></Grid.RowDefinitions>
+          <Border Background="{StaticResource XpTitleGradient}" CornerRadius="4,4,0,0">
+            <Grid Margin="5,2,3,2">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="19"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <Image Source="Assets/Icons/settings.png" Width="16" Height="16" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="1" Text="강아지 이름" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+              <Button Grid.Column="2" Style="{StaticResource XpTitleButton}" Content="×" Click="CancelName_Click"/>
+            </Grid>
+          </Border>
+          <StackPanel Grid.Row="1" Margin="10,8,10,4">
+            <TextBlock Text="MX의 친구를 뭐라고 부를까요? (최대 8글자)" FontSize="10" Margin="0,0,0,5"/>
+            <TextBox x:Name="PetNameInput" MaxLength="8" Height="23" Padding="4,2" FontFamily="{StaticResource GalmuriFont}" FontSize="11"/>
+            <TextBlock x:Name="PetNameValidationText" Text="이름을 한 글자 이상 입력해 주세요." Foreground="#C40000" FontSize="9" Margin="1,3,0,0" Visibility="Collapsed"/>
+          </StackPanel>
+          <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,8,6">
+            <Button Style="{StaticResource XpButton}" Width="62" Height="22" Content="저장" Click="SaveName_Click"/>
+            <Button Style="{StaticResource XpButton}" Width="62" Height="22" Margin="6,0,0,0" Content="취소" Click="CancelName_Click"/>
+          </StackPanel>
+        </Grid>
       </Border>
     </Popup>
 
@@ -219,7 +248,7 @@
             <Grid Margin="5,2,3,2">
               <Grid.ColumnDefinitions><ColumnDefinition Width="19"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <Image Source="Assets/Icons/settings.png" Width="16" Height="16" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="1" Text="모찌 상태" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+              <TextBlock x:Name="StatusTitleText" Grid.Column="1" Text="맥스 상태" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
               <Button Grid.Column="2" Style="{StaticResource XpTitleButton}" Content="×" Click="CloseStatus_Click"/>
             </Grid>
           </Border>
@@ -247,7 +276,7 @@
                   </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="지금 모찌" Style="{StaticResource XpGroupBox}">
+                <GroupBox x:Name="CurrentPetGroup" Header="지금 맥스" Style="{StaticResource XpGroupBox}">
                   <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
@@ -330,7 +359,7 @@
 
   <Window.ContextMenu>
     <ContextMenu Style="{StaticResource XpContextMenu}">
-      <MenuItem Header="모찌에게 말 걸기" Click="Talk_Click"><MenuItem.Icon><Image Source="Assets/Icons/info.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
+      <MenuItem x:Name="TalkContextMenuItem" Header="맥스에게 말 걸기" Click="Talk_Click"><MenuItem.Icon><Image Source="Assets/Icons/info.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <Separator/>
       <MenuItem Header="간식으로 축하" Click="Feed_Click"><MenuItem.Icon><Image Source="Assets/Icons/feed.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <MenuItem Header="하이파이브" Click="Play_Click"><MenuItem.Icon><Image Source="Assets/Icons/play.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
@@ -339,6 +368,7 @@
       <Separator/>
       <MenuItem Header="오늘 활동" Click="Status_Click"><MenuItem.Icon><Image Source="Assets/Icons/info.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <MenuItem Header="MX 배터리 새로 고침" Click="RefreshBattery_Click"><MenuItem.Icon><Image Source="Assets/Icons/refresh.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
+      <MenuItem Header="이름 바꾸기..." Click="Rename_Click"><MenuItem.Icon><Image Source="Assets/Icons/settings.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <Separator/>
       <MenuItem Header="종료" Click="Exit_Click"/>
     </ContextMenu>

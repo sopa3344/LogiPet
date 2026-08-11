@@ -28,6 +28,7 @@
     <Reference Include="PluginApi">
       <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
     </Reference>
+    <EmbeddedResource Include="Resources\Actions\*.png" />
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="PostBuildEvent">

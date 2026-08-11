@@ -107,6 +107,8 @@ public partial class MainWindow : Window
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
         RestoreWindowPosition();
+        _state.PetName = PetState.NormalizePetName(_state.PetName);
+        ApplyPetNameUi();
         _state.EnsureToday();
         _state.IsSleeping = false;
         try
@@ -291,6 +293,51 @@ public partial class MainWindow : Window
     {
         ActionMenuPopup.IsOpen = false;
         OpenFootprints();
+    }
+
+    private void Rename_Click(object sender, RoutedEventArgs e)
+    {
+        ActionMenuPopup.IsOpen = false;
+        StatusPopup.IsOpen = false;
+        PetNameInput.Text = _state.PetName;
+        PetNameValidationText.Visibility = Visibility.Collapsed;
+        NamePopup.IsOpen = true;
+        Dispatcher.BeginInvoke(() =>
+        {
+            PetNameInput.Focus();
+            PetNameInput.SelectAll();
+        }, DispatcherPriority.Input);
+    }
+
+    private void SaveName_Click(object sender, RoutedEventArgs e)
+    {
+        var value = PetNameInput.Text.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            PetNameValidationText.Visibility = Visibility.Visible;
+            PetNameInput.Focus();
+            return;
+        }
+
+        _state.PetName = PetState.NormalizePetName(value);
+        _state.Save();
+        ApplyPetNameUi();
+        NamePopup.IsOpen = false;
+        Say($"이제 내 이름은 {_state.PetName}야! 잘 부탁해.");
+    }
+
+    private void CancelName_Click(object sender, RoutedEventArgs e) => NamePopup.IsOpen = false;
+
+    private void ApplyPetNameUi()
+    {
+        var name = _state.PetName;
+        Title = $"LogiPet - {name}";
+        AppTitleText.Text = Title;
+        BalloonNameText.Text = name;
+        TalkMenuText.Text = $"{name}에게 말 걸기";
+        TalkContextMenuItem.Header = $"{name}에게 말 걸기";
+        StatusTitleText.Text = $"{name} 상태";
+        CurrentPetGroup.Header = $"지금 {name}";
     }
 
     private async void RefreshBattery_Click(object sender, RoutedEventArgs e) => await RefreshBatteryAsync();
@@ -576,8 +623,8 @@ public partial class MainWindow : Window
         WheelDistanceText.Text = $"{wheelMeters:N2} m";
 
         var stateLabel = GetActivityLabel(_activityState);
-        ActivityModeText.Text = stateLabel.Replace("모찌가 ", string.Empty);
-        CurrentActivityText.Text = stateLabel.Replace("모찌가 ", string.Empty);
+        ActivityModeText.Text = stateLabel;
+        CurrentActivityText.Text = stateLabel;
         CurrentSessionText.Text = FormatDuration(_currentSessionSeconds);
     }
 
@@ -589,12 +636,12 @@ public partial class MainWindow : Window
 
     private static string GetActivityLabel(CompanionActivityState state) => state switch
     {
-        CompanionActivityState.Walking => "모찌가 함께 걷는 중",
-        CompanionActivityState.Running => "모찌가 신나게 달리는 중",
-        CompanionActivityState.Sitting => "모찌가 옆에서 기다리는 중",
-        CompanionActivityState.Resting => "모찌가 함께 쉬는 중",
-        CompanionActivityState.Sleeping => "모찌가 자리를 지키는 중",
-        _ => "모찌가 곁에 있는 중"
+        CompanionActivityState.Walking => "함께 걷는 중",
+        CompanionActivityState.Running => "신나게 달리는 중",
+        CompanionActivityState.Sitting => "옆에서 기다리는 중",
+        CompanionActivityState.Resting => "함께 쉬는 중",
+        CompanionActivityState.Sleeping => "자리를 지키는 중",
+        _ => "곁에 있는 중"
     };
 
     private void UpdateClock()
