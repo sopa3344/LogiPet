@@ -28,6 +28,8 @@ struct PetWindowView: View {
                 } showActivity: {
                     model.balloonVisible = false
                     model.showStats = true
+                } openCommunity: {
+                    model.openCommunity()
                 }
                 .offset(y: -220)
                 .transition(.opacity)
@@ -109,6 +111,8 @@ struct PetWindowView: View {
                         draftName = model.petName
                         renamePresented = true
                     }
+                    Divider()
+                    Button("MX 커뮤니티 바로 가기") { model.openCommunity() }
                 }
         }
     }
@@ -205,6 +209,7 @@ private struct SpeechBalloon: View {
     let text: String
     let close: () -> Void
     let showActivity: () -> Void
+    let openCommunity: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -215,8 +220,12 @@ private struct SpeechBalloon: View {
                     Button("×", action: close).buttonStyle(.plain)
                 }
                 Text(text).lineLimit(3).fixedSize(horizontal: false, vertical: true)
-                Button("오늘 활동 보기 ▶", action: showActivity)
-                    .buttonStyle(.plain).foregroundStyle(.blue).underline()
+                HStack(spacing: 4) {
+                    Button("오늘 활동 ▶", action: showActivity)
+                    Text("|").foregroundStyle(.secondary)
+                    Button("MX 커뮤니티 ▶", action: openCommunity)
+                }
+                .buttonStyle(.plain).foregroundStyle(.blue).underline()
             }
             .font(.custom("NeoDunggeunmo", size: 10))
             .padding(8)

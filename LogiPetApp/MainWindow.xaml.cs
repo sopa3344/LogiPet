@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -48,6 +49,7 @@ public partial class MainWindow : Window
     private double _petFrameCenterX = 50;
     private readonly Dictionary<string, double> _frameCenterCache = new();
     private const double EstimatedWheelMetersPerNotch = 0.0025;
+    private const string CommunityUrl = "https://mx-community.com/";
 
     public MainWindow()
     {
@@ -327,6 +329,21 @@ public partial class MainWindow : Window
     }
 
     private void CancelName_Click(object sender, RoutedEventArgs e) => NamePopup.IsOpen = false;
+
+    private void OpenCommunity_Click(object sender, RoutedEventArgs e)
+    {
+        ActionMenuPopup.IsOpen = false;
+        SpeechBalloonPopup.IsOpen = false;
+        try
+        {
+            Process.Start(new ProcessStartInfo(CommunityUrl) { UseShellExecute = true });
+            SpeechText.Text = "MX 사용자들의 활용법을 구경하러 가자!";
+        }
+        catch
+        {
+            Say("브라우저를 열지 못했어. 잠시 후 다시 눌러 줘.");
+        }
+    }
 
     private void ApplyPetNameUi()
     {
@@ -679,7 +696,8 @@ public partial class MainWindow : Window
                 : "아직 오늘의 첫 클릭을 기다리는 중이야. 천천히 시작하자!",
             wheelTurns >= 1
                 ? $"오늘 휠을 약 {wheelTurns:N0}바퀴 굴렸어. 꽤 멀리 함께 왔네!"
-                : GetActivityCompanionPhrase()
+                : GetActivityCompanionPhrase(),
+            "다른 MX 사용자들은 어떻게 쓰는지 궁금해? 커뮤니티에서 활용법을 구경해 봐!"
         };
 
         if (_batteryLevel is < 15)

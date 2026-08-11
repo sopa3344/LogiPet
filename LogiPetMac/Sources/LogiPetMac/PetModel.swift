@@ -93,6 +93,16 @@ final class PetModel: ObservableObject {
         say("이제 내 이름은 \(value)야! 잘 부탁해.")
     }
 
+    func openCommunity() {
+        guard let url = URL(string: "https://mx-community.com/") else { return }
+        if NSWorkspace.shared.open(url) {
+            speech = "MX 사용자들의 활용법을 구경하러 가자!"
+            balloonVisible = false
+        } else {
+            say("브라우저를 열지 못했어. 잠시 후 다시 눌러 줘.")
+        }
+    }
+
     func start() {
         loadState()
         speech = "\(petName), 준비 중…"
@@ -273,7 +283,8 @@ final class PetModel: ObservableObject {
                 : "아직 오늘의 첫 클릭을 기다리는 중이야. 천천히 시작하자!",
             state.wheelTurns >= 1
                 ? "오늘 휠을 약 \(Int(state.wheelTurns).formatted())바퀴 굴렸어. 꽤 멀리 함께 왔네!"
-                : "마우스를 움직일 때마다 나도 제자리에서 함께 걷고 있어."
+                : "마우스를 움직일 때마다 나도 제자리에서 함께 걷고 있어.",
+            "다른 MX 사용자들은 어떻게 쓰는지 궁금해? 커뮤니티에서 활용법을 구경해 봐!"
         ]
         defer { talkIndex += 1 }
         return phrases[talkIndex % phrases.count]

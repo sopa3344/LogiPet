@@ -167,10 +167,18 @@
             <TextBlock x:Name="BalloonText" Grid.Row="1" Margin="0,4,2,0" Text="안녕! 오늘도 옆에 있을게."
                        FontFamily="{StaticResource NeoDunggeunmoFont}" FontSize="11" LineHeight="16"
                        TextWrapping="Wrap" Foreground="#111" MaxWidth="196"/>
-            <Button Grid.Row="2" Margin="-3,5,0,-2" HorizontalAlignment="Left" Padding="3,1"
-                    Background="Transparent" BorderThickness="0" Foreground="#0000EE" Cursor="Hand"
-                    FontFamily="{StaticResource NeoDunggeunmoFont}" FontSize="10"
-                    Content="오늘 활동 보기 ▶" Click="BalloonActivity_Click"/>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="-3,5,0,-2">
+              <Button HorizontalAlignment="Left" Padding="3,1"
+                      Background="Transparent" BorderThickness="0" Foreground="#0000EE" Cursor="Hand"
+                      FontFamily="{StaticResource NeoDunggeunmoFont}" FontSize="10"
+                      Content="오늘 활동 ▶" Click="BalloonActivity_Click"/>
+              <TextBlock Text=" | " Foreground="#777" FontSize="10" VerticalAlignment="Center"/>
+              <Button HorizontalAlignment="Left" Padding="3,1"
+                      Background="Transparent" BorderThickness="0" Foreground="#0000EE" Cursor="Hand"
+                      FontFamily="{StaticResource NeoDunggeunmoFont}" FontSize="10"
+                      ToolTip="MX 사용자들의 활용법과 작업 환경을 둘러봅니다."
+                      Content="MX 커뮤니티 ▶" Click="OpenCommunity_Click"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Grid Height="9" Width="218">
@@ -208,6 +216,11 @@
           </Button>
           <Button Style="{StaticResource XpMenuButton}" Click="Rename_Click">
             <DockPanel><Image Source="Assets/Icons/settings.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="이름 바꾸기..." VerticalAlignment="Center"/></DockPanel>
+          </Button>
+          <Border Height="1" Background="{StaticResource XpShadow}" Margin="3,2"/>
+          <Button Style="{StaticResource XpMenuButton}" Click="OpenCommunity_Click"
+                  ToolTip="MX 사용자들의 실제 활용법과 팁을 확인합니다.">
+            <DockPanel><Image Source="Assets/Icons/community.png" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="MX 커뮤니티 바로 가기" VerticalAlignment="Center"/></DockPanel>
           </Button>
         </StackPanel>
       </Border>
@@ -295,7 +308,7 @@
               <StackPanel>
                 <DockPanel Margin="0,0,0,8">
                   <Image Source="Assets/Icons/info.png" Width="16" Height="16" Margin="0,0,7,0"/>
-                  <TextBlock Text="LogiPet 1.0" FontWeight="Bold" VerticalAlignment="Center"/>
+                  <TextBlock Text="LogiPet 1.1" FontWeight="Bold" VerticalAlignment="Center"/>
                 </DockPanel>
                 <TextBlock Text="MX Master 4로 일하는 동안 함께 걷고 쉬며 활동을 기록하는 작은 픽셀 동반견입니다."
                            TextWrapping="Wrap" LineHeight="17"/>
@@ -369,6 +382,7 @@
       <MenuItem Header="오늘 활동" Click="Status_Click"><MenuItem.Icon><Image Source="Assets/Icons/info.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <MenuItem Header="MX 배터리 새로 고침" Click="RefreshBattery_Click"><MenuItem.Icon><Image Source="Assets/Icons/refresh.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <MenuItem Header="이름 바꾸기..." Click="Rename_Click"><MenuItem.Icon><Image Source="Assets/Icons/settings.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
+      <MenuItem Header="MX 커뮤니티 바로 가기" Click="OpenCommunity_Click"><MenuItem.Icon><Image Source="Assets/Icons/community.png" Width="16" Height="16"/></MenuItem.Icon></MenuItem>
       <Separator/>
       <MenuItem Header="종료" Click="Exit_Click"/>
     </ContextMenu>
