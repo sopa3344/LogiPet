@@ -18,7 +18,7 @@ description: Walk, celebrate, stretch, and share your mouse activity with Max.
 pluginFileName: LogiPetPlugin.dll
 
 # Plugin version.
-version: 1.4
+version: 1.5
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: LogiPet Demo

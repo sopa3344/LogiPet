@@ -40,9 +40,9 @@ license texts are preserved under `ThirdParty/`.
 - Source: https://gitlab.freedesktop.org/tango/tango-icon-theme
 - Package source: https://packages.debian.org/tango-icon-theme
 - License: Public domain
-- Use in LogiPet: Selected original 16×16 PNG icons for feeding, play, sleep,
-  settings, information, battery, warning, and refresh actions. Images retain
-  their original dimensions and are rendered with nearest-neighbor scaling.
+- Use in LogiPet: Selected original 32×32 PNG icons for the Windows companion
+  controls and all 13 Actions Ring commands. The files are used directly from
+  the published icon set rather than redrawn or restyled for LogiPet.
 - Public-domain notice: `ThirdParty/Tango/PUBLIC-DOMAIN.txt`
 
 ## Pet Dogs Pack
