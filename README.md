@@ -5,13 +5,20 @@ LogiPet은 MX Master 4를 사용하는 동안 함께 걷고 쉬며 하루를 기
 맥스는 생산성을 평가하는 도구가 아니라, 사용자의 마우스 활동에 반응하며
 데스크톱 한편에서 함께 생활하는 작은 픽셀 강아지입니다.
 
+> [!IMPORTANT]
+> 설치할 때 GitHub의 **Code → Download ZIP**을 사용하지 마세요. 그 파일은
+> 개발용 소스 코드이며 실행 배포본이 아닙니다. 반드시
+> [Releases의 최신 버전](https://github.com/sopa3344/LogiPet/releases/latest)에서
+> 운영체제에 맞는 ZIP을 내려받으세요.
+
 ## 다운로드와 설치
 
 최신 버전은 [GitHub Releases](https://github.com/sopa3344/LogiPet/releases/latest)에서 받습니다.
 
 ### Windows
 
-1. Releases에서 `LogiPet-Windows.zip`과 `LogiPet.lplug4`를 받습니다.
+1. [Releases](https://github.com/sopa3344/LogiPet/releases/latest)에서
+   `LogiPet-Windows.zip`과 `LogiPet.lplug4`를 받습니다.
 2. ZIP의 압축을 원하는 폴더에 풀고 `LogiPet.exe`를 실행합니다.
 3. Windows SmartScreen이 표시되면 **추가 정보 → 실행**을 선택합니다.
 4. Actions Ring을 사용할 경우 `LogiPet.lplug4`를 더블클릭해 플러그인을 설치하고
@@ -109,11 +116,16 @@ GitHub의 **Actions → Build macOS app → Run workflow**를 실행하면
 
 ## Windows 개발 빌드 실행
 
-1. 루트 폴더의 `Run-LogiPet.cmd`를 실행합니다.
-2. 강아지를 왼쪽 클릭하면 대화하고, 오른쪽 클릭하면 행동 메뉴가 열립니다.
-3. Logi Options+에서 MX Master 4 → Actions Ring → 사용자 지정을 엽니다.
-4. **모든 액션 → 설치된 플러그인 → LogiPet Desktop Companion**을 선택합니다.
-5. 아래 LogiPet 액션 중 자주 쓰는 기능을 원하는 칸이나 Actions Ring 폴더에 배치합니다.
+이 절은 GitHub 소스 코드를 직접 빌드하는 개발자용입니다. 일반 사용자는
+`Code → Download ZIP`이나 `Run-LogiPet.cmd` 대신 Releases의 배포본을 사용하세요.
+
+1. 아래 `다시 빌드하기` 명령으로 `dist\LogiPet` 배포본을 먼저 만듭니다.
+2. 루트 폴더의 `Run-LogiPet.cmd`를 실행합니다. 배포본이 없으면 실행하지 않고
+   Releases 페이지를 엽니다.
+3. 강아지를 왼쪽 클릭하면 대화하고, 오른쪽 클릭하면 행동 메뉴가 열립니다.
+4. Logi Options+에서 MX Master 4 → Actions Ring → 사용자 지정을 엽니다.
+5. **모든 액션 → 설치된 플러그인 → LogiPet Desktop Companion**을 선택합니다.
+6. 아래 LogiPet 액션 중 자주 쓰는 기능을 원하는 칸이나 Actions Ring 폴더에 배치합니다.
 
 ### Actions Ring에서 선택할 수 있는 맥스 액션
 
