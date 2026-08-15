@@ -12,12 +12,22 @@ on:
     paths:
       - "LogiPetMac/**"
       - "scripts/package-macos.sh"
+      - "scripts/notarize-macos.sh"
+      - ".github/workflows/build-macos.yml"
+  pull_request:
+    paths:
+      - "LogiPetMac/**"
+      - "scripts/package-macos.sh"
+      - "scripts/notarize-macos.sh"
       - ".github/workflows/build-macos.yml"
   release:
     types: [published]
 
 permissions:
   contents: write
+
+env:
+  HAS_APPLE_SIGNING_SECRETS: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION_P12_BASE64 != '' && secrets.APPLE_DEVELOPER_ID_APPLICATION_P12_PASSWORD != '' && secrets.APPLE_NOTARY_PRIVATE_KEY_P8_BASE64 != '' && secrets.APPLE_NOTARY_KEY_ID != '' && secrets.APPLE_NOTARY_ISSUER_ID != '' }}
 
 jobs:
   build:
@@ -35,19 +45,77 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
+      - name: Require signing credentials for release uploads
+        if: ${{ (github.event_name == 'release' || github.event.inputs.release_tag != '') && env.HAS_APPLE_SIGNING_SECRETS != 'true' }}
+        run: |
+          echo "Apple signing and notarization secrets are required for release uploads." >&2
+          exit 1
       - name: Test
         working-directory: LogiPetMac
         run: swift test
       - name: Build release
         working-directory: LogiPetMac
         run: swift build -c release
+      - name: Import Developer ID certificate
+        if: env.HAS_APPLE_SIGNING_SECRETS == 'true'
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_APPLICATION_P12_PASSWORD }}
+        shell: bash
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/developer-id-application.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/logipet-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+
+          printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 -D > "$CERTIFICATE_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" \
+            -P "$P12_PASSWORD" \
+            -A \
+            -t cert \
+            -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -s \
+            -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+
+          SIGNING_IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | sed -n 's/.*"\(Developer ID Application:.*\)"/\1/p' | head -1)"
+          test -n "$SIGNING_IDENTITY"
+          echo "SIGNING_IDENTITY=$SIGNING_IDENTITY" >> "$GITHUB_ENV"
+          echo "SIGNING_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
       - name: Package app
         shell: bash
         run: |
           BIN_PATH="$(cd LogiPetMac && swift build -c release --show-bin-path)"
           RESOURCE_BUNDLE="$(find "$BIN_PATH" -maxdepth 1 -type d -name '*LogiPetMac*.bundle' | head -1)"
           test -n "$RESOURCE_BUNDLE"
-          bash scripts/package-macos.sh "$BIN_PATH/LogiPetMac" "$RESOURCE_BUNDLE" "${{ matrix.output }}"
+          bash scripts/package-macos.sh \
+            "$BIN_PATH/LogiPetMac" \
+            "$RESOURCE_BUNDLE" \
+            "${{ matrix.output }}" \
+            "${SIGNING_IDENTITY:--}"
+      - name: Notarize and staple app
+        if: env.HAS_APPLE_SIGNING_SECRETS == 'true'
+        env:
+          NOTARY_PRIVATE_KEY_BASE64: ${{ secrets.APPLE_NOTARY_PRIVATE_KEY_P8_BASE64 }}
+          NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+        shell: bash
+        run: |
+          PRIVATE_KEY_PATH="$RUNNER_TEMP/AuthKey_${NOTARY_KEY_ID}.p8"
+          printf '%s' "$NOTARY_PRIVATE_KEY_BASE64" | base64 -D > "$PRIVATE_KEY_PATH"
+          chmod 600 "$PRIVATE_KEY_PATH"
+          bash scripts/notarize-macos.sh \
+            "dist/LogiPet-macOS.app" \
+            "dist/${{ matrix.output }}.zip" \
+            "$PRIVATE_KEY_PATH" \
+            "$NOTARY_KEY_ID" \
+            "$NOTARY_ISSUER_ID"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output }}
@@ -59,3 +127,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         run: gh release upload "$RELEASE_TAG" "dist/${{ matrix.output }}.zip" --clobber
+      - name: Remove temporary signing keychain
+        if: always() && env.SIGNING_KEYCHAIN_PATH != ''
+        shell: bash
+        run: security delete-keychain "$SIGNING_KEYCHAIN_PATH" || true
