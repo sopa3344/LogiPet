@@ -93,6 +93,8 @@ swift build -c release
 
 GitHub의 **Actions → Build macOS app → Run workflow**를 실행하면
 `LogiPet-macOS-Apple-Silicon.zip`과 `LogiPet-macOS-Intel.zip`이 Artifacts에 생성됩니다.
+공개 Release에 Developer ID 서명·공증된 ZIP을 올리는 관리 절차는
+[macOS 서명과 공증 안내](docs/MACOS_SIGNING.md)를 따릅니다.
 태그의 GitHub Release를 발행하면 두 파일이 릴리스에도 자동 첨부됩니다.
 
 ## 구현된 기능
