@@ -237,7 +237,7 @@ private struct SpeechBalloon: View {
             .background(XP.balloon)
             .overlay(Rectangle().strokeBorder(.black, lineWidth: 1, antialiased: false))
             Triangle().fill(XP.balloon).frame(width: 18, height: 9)
-                .overlay(Triangle().stroke(.black, lineWidth: 1, antialiased: false))
+                .overlay(Triangle().stroke(.black, lineWidth: 1))
         }
         .shadow(color: .black.opacity(0.35), radius: 0, x: 2, y: -2)
     }
