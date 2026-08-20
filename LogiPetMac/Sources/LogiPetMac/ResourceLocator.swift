@@ -40,6 +40,14 @@ enum ResourceLocator {
                 return url
             }
         }
+#if DEBUG
+        return Bundle.module.url(
+            forResource: name,
+            withExtension: extensionName,
+            subdirectory: subdirectory
+        )
+#else
         return nil
+#endif
     }
 }
