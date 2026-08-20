@@ -1,7 +1,9 @@
 import Foundation
 
 enum ResourceLocator {
-    private static let bundles: [Bundle] = {
+    private static let resourceBundleName = "LogiPetMac_LogiPetMac.bundle"
+
+    private static let resourceBundle: Bundle? = {
         var searchRoots: [URL] = []
 
         if let resourceURL = Bundle.main.resourceURL {
@@ -22,30 +24,19 @@ enum ResourceLocator {
             }
         }
 
-        var result = [Bundle.main]
         var visited = Set<String>()
-
         for root in searchRoots where visited.insert(root.standardizedFileURL.path).inserted {
-            guard let contents = try? FileManager.default.contentsOfDirectory(
-                at: root,
-                includingPropertiesForKeys: nil,
-                options: [.skipsHiddenFiles]
-            ) else { continue }
-
-            for url in contents where url.pathExtension == "bundle" {
-                guard let bundle = Bundle(url: url),
-                      result.allSatisfy({ $0.bundleURL.standardizedFileURL != bundle.bundleURL.standardizedFileURL })
-                else { continue }
-                result.append(bundle)
+            let candidate = root.appendingPathComponent(resourceBundleName, isDirectory: true)
+            if let bundle = Bundle(url: candidate) {
+                return bundle
             }
         }
-
-        return result
+        return nil
     }()
 
     static func url(forResource name: String, withExtension extensionName: String,
                     subdirectory: String? = nil) -> URL? {
-        for bundle in bundles {
+        for bundle in [resourceBundle, Bundle.main].compactMap({ $0 }) {
             if let url = bundle.url(
                 forResource: name,
                 withExtension: extensionName,
