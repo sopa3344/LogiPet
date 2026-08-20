@@ -23,4 +23,23 @@ final class LogiPetMacTests: XCTestCase {
             subdirectory: "Resources/Pets/GoldenRetriever"
         ))
     }
+
+    @MainActor
+    func testPixelTextMeasuresKoreanContentWithinItsConstraint() {
+        FontRegistry.registerBundledFonts()
+        let view = PixelTextView()
+        view.configure(
+            text: "오늘 클릭을 21번 했어!",
+            size: 9,
+            color: .labelColor,
+            lineLimit: 2,
+            alignment: .left,
+            underline: false
+        )
+
+        let measured = view.measure(maxWidth: 96)
+        XCTAssertGreaterThan(measured.width, 0)
+        XCTAssertLessThanOrEqual(measured.width, 96)
+        XCTAssertGreaterThan(measured.height, 0)
+    }
 }
