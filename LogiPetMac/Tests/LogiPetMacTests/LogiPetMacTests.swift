@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import LogiPetMac
 
@@ -41,5 +42,14 @@ final class LogiPetMacTests: XCTestCase {
         XCTAssertGreaterThan(measured.width, 0)
         XCTAssertLessThanOrEqual(measured.width, 96)
         XCTAssertGreaterThan(measured.height, 0)
+
+        view.frame = NSRect(origin: .zero, size: measured)
+        let rendered = view.bitmapImageRepForCachingDisplay(in: view.bounds)
+        XCTAssertNotNil(rendered)
+        if let rendered {
+            view.cacheDisplay(in: view.bounds, to: rendered)
+            XCTAssertGreaterThan(rendered.pixelsWide, 0)
+            XCTAssertGreaterThan(rendered.pixelsHigh, 0)
+        }
     }
 }
