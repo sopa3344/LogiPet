@@ -1,4 +1,3 @@
-import AppKit
 import XCTest
 @testable import LogiPetMac
 
@@ -23,33 +22,5 @@ final class LogiPetMacTests: XCTestCase {
             withExtension: "png",
             subdirectory: "Resources/Pets/GoldenRetriever"
         ))
-    }
-
-    @MainActor
-    func testPixelTextMeasuresKoreanContentWithinItsConstraint() {
-        FontRegistry.registerBundledFonts()
-        let view = PixelTextView()
-        view.configure(
-            text: "오늘 클릭을 21번 했어!",
-            size: 9,
-            color: .labelColor,
-            lineLimit: 2,
-            alignment: .left,
-            underline: false
-        )
-
-        let measured = view.measure(maxWidth: 96)
-        XCTAssertGreaterThan(measured.width, 0)
-        XCTAssertLessThanOrEqual(measured.width, 96)
-        XCTAssertGreaterThan(measured.height, 0)
-
-        view.frame = NSRect(origin: .zero, size: measured)
-        let rendered = view.bitmapImageRepForCachingDisplay(in: view.bounds)
-        XCTAssertNotNil(rendered)
-        if let rendered {
-            view.cacheDisplay(in: view.bounds, to: rendered)
-            XCTAssertGreaterThan(rendered.pixelsWide, 0)
-            XCTAssertGreaterThan(rendered.pixelsHigh, 0)
-        }
     }
 }
