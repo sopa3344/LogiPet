@@ -55,4 +55,10 @@ if ! kill -0 "$PID" >/dev/null 2>&1; then
   exit 1
 fi
 
+if [[ -n "${LOGIPET_SCREENSHOT_PATH:-}" ]]; then
+  mkdir -p "$(dirname "$LOGIPET_SCREENSHOT_PATH")"
+  /usr/sbin/screencapture -x "$LOGIPET_SCREENSHOT_PATH"
+  test -s "$LOGIPET_SCREENSHOT_PATH"
+fi
+
 echo "LogiPet stayed running for 5 seconds."

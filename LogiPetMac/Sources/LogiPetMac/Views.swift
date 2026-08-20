@@ -9,6 +9,10 @@ private enum XP {
     static let shadow = Color(red: 172/255, green: 168/255, blue: 153/255)
     static let mint = Color(red: 45/255, green: 212/255, blue: 143/255)
     static let balloon = Color(red: 1, green: 1, blue: 225/255)
+
+    static func pixelFont(_ size: CGFloat) -> Font {
+        .custom("Galmuri11", fixedSize: size)
+    }
 }
 
 struct PetWindowView: View {
@@ -69,7 +73,7 @@ struct PetWindowView: View {
             .background(XP.face)
             statusBar
         }
-        .overlay(Rectangle().stroke(XP.border, lineWidth: 2))
+        .overlay(Rectangle().strokeBorder(XP.border, lineWidth: 2, antialiased: false))
         .background(XP.face)
         .shadow(color: .black.opacity(0.35), radius: 0, x: 2, y: -2)
     }
@@ -78,7 +82,7 @@ struct PetWindowView: View {
         HStack(spacing: 5) {
             PixelDogIcon().frame(width: 16, height: 16)
             Text("LogiPet - \(model.petName)")
-                .font(.custom("Galmuri11", size: 11).weight(.bold))
+                .font(XP.pixelFont(11))
                 .foregroundStyle(.white)
             Spacer()
             Button("×") { NSApp.terminate(nil) }
@@ -94,7 +98,7 @@ struct PetWindowView: View {
             Ellipse().fill(.black.opacity(0.2)).frame(width: 82, height: 10).offset(y: -3)
             PetSpriteView(animation: model.animation, frame: model.frame, facing: model.facing)
                 .frame(width: 200, height: 66)
-                .clipped()
+                .clipped(antialiased: false)
                 .contentShape(Rectangle())
                 .onTapGesture { model.talk() }
                 .contextMenu {
@@ -120,10 +124,10 @@ struct PetWindowView: View {
     private var statusBar: some View {
         HStack(spacing: 4) {
             Text("L")
-                .font(.custom("Galmuri11", size: 7).weight(.bold))
+                .font(XP.pixelFont(7))
                 .frame(width: 11, height: 11)
                 .background(model.batteryConnected ? XP.mint : Color.orange)
-                .overlay(Rectangle().stroke(Color.gray, lineWidth: 1))
+                .overlay(Rectangle().strokeBorder(Color.gray, lineWidth: 1, antialiased: false))
             Text(model.batteryConnected ? "MX 연결됨" : "MX 연결 대기")
             Text("·").foregroundStyle(.secondary)
             Text(model.activity.label).foregroundStyle(XP.blue)
@@ -132,11 +136,11 @@ struct PetWindowView: View {
             Divider().frame(height: 14)
             Text(model.clockText).help(model.dateText)
         }
-        .font(.custom("Galmuri11", size: 9))
+        .font(XP.pixelFont(9))
         .padding(.horizontal, 4)
         .frame(height: 22)
         .background(XP.face)
-        .overlay(Rectangle().stroke(XP.shadow, lineWidth: 1))
+        .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
     }
 }
 
@@ -147,27 +151,27 @@ private struct BatteryGroup: View {
         XPGroupBox(title: "MX Master 4") {
             VStack(spacing: 3) {
                 HStack(spacing: 5) {
-                    Text("🔋").font(.system(size: 12))
+                    PixelBatteryIcon().frame(width: 13, height: 16)
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             Rectangle().fill(.white)
                             Rectangle().fill(batteryColor).frame(width: geometry.size.width * CGFloat(model.batteryLevel ?? 0) / 100)
                         }
-                        .overlay(Rectangle().stroke(XP.shadow, lineWidth: 1))
+                        .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
                     }
                     .frame(height: 13)
                     Text(model.batteryText)
-                        .font(.custom("Galmuri11", size: 11).weight(.bold))
+                        .font(XP.pixelFont(11))
                         .foregroundStyle(batteryColor)
                 }
                 Text(model.speech)
-                    .font(.custom("NeoDunggeunmo", size: 10))
+                    .font(XP.pixelFont(9))
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
                     .frame(height: 19)
                     .background(.white)
-                    .overlay(Rectangle().stroke(XP.shadow, lineWidth: 1))
+                    .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
             }
         }
     }
@@ -193,10 +197,10 @@ private struct XPGroupBox<Content: View>: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             content.padding(.horizontal, 7).padding(.top, 9).padding(.bottom, 5)
-                .overlay(Rectangle().stroke(XP.shadow, lineWidth: 1))
+                .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
                 .padding(.top, 6)
             Text(title)
-                .font(.custom("Galmuri11", size: 9))
+                .font(XP.pixelFont(9))
                 .padding(.horizontal, 4)
                 .background(XP.face)
                 .padding(.leading, 8)
@@ -215,7 +219,7 @@ private struct SpeechBalloon: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(name).foregroundStyle(Color(red: 0, green: 51/255, blue: 153/255)).fontWeight(.bold)
+                    Text(name).foregroundStyle(Color(red: 0, green: 51/255, blue: 153/255))
                     Spacer()
                     Button("×", action: close).buttonStyle(.plain)
                 }
@@ -227,13 +231,13 @@ private struct SpeechBalloon: View {
                 }
                 .buttonStyle(.plain).foregroundStyle(.blue).underline()
             }
-            .font(.custom("NeoDunggeunmo", size: 10))
+            .font(XP.pixelFont(9))
             .padding(8)
             .frame(width: 218, alignment: .leading)
             .background(XP.balloon)
-            .overlay(Rectangle().stroke(.black, lineWidth: 1))
+            .overlay(Rectangle().strokeBorder(.black, lineWidth: 1, antialiased: false))
             Triangle().fill(XP.balloon).frame(width: 18, height: 9)
-                .overlay(Triangle().stroke(.black, lineWidth: 1))
+                .overlay(Triangle().stroke(.black, lineWidth: 1, antialiased: false))
         }
         .shadow(color: .black.opacity(0.35), radius: 0, x: 2, y: -2)
     }
@@ -245,19 +249,19 @@ private struct StatsPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("▦  \(model.petName) 상태").foregroundStyle(.white).fontWeight(.bold)
+                Text("▦  \(model.petName) 상태").foregroundStyle(.white)
                 Spacer()
                 Button("×") { model.showStats = false }.buttonStyle(XPTitleButtonStyle())
             }
-            .font(.custom("Galmuri11", size: 11))
+            .font(XP.pixelFont(11))
             .padding(.horizontal, 5).frame(height: 28)
             .background(LinearGradient(colors: [XP.blueLight, XP.blue], startPoint: .top, endPoint: .bottom))
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text(Date().formatted(.dateTime.month().day())).fontWeight(.bold)
+                    Text(Date().formatted(.dateTime.month().day()))
                     Spacer()
-                    Text("macOS 입력 · 로컬 저장").font(.custom("Galmuri11", size: 8)).foregroundStyle(.secondary)
+                    Text("macOS 입력 · 로컬 저장").font(XP.pixelFont(8)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 5) {
                     StatCard(title: "왼쪽 클릭", value: "\(model.state.leftClicks.formatted())번")
@@ -270,15 +274,15 @@ private struct StatsPanel: View {
                 StatCard(title: "휠 회전", value: "\(Int(model.state.wheelTurns).formatted())회")
                 if !model.inputPermissionGranted {
                     Text("클릭 통계를 위해 시스템 설정 › 개인정보 보호 및 보안 › 손쉬운 사용에서 LogiPet을 허용해 주세요.")
-                        .font(.custom("NeoDunggeunmo", size: 8)).foregroundStyle(.red).lineLimit(2)
+                        .font(XP.pixelFont(8)).foregroundStyle(.red).lineLimit(2)
                 }
             }
-            .font(.custom("Galmuri11", size: 9))
+            .font(XP.pixelFont(9))
             .padding(8)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(XP.face)
         }
-        .overlay(Rectangle().stroke(XP.border, lineWidth: 2))
+        .overlay(Rectangle().strokeBorder(XP.border, lineWidth: 2, antialiased: false))
         .shadow(color: .black.opacity(0.35), radius: 0, x: 2, y: -2)
     }
 }
@@ -290,11 +294,11 @@ private struct StatCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(title).foregroundStyle(.secondary).font(.custom("Galmuri11", size: 8))
-            Text(value).font(.custom("Galmuri11", size: 13).weight(.bold)).foregroundStyle(accent ? XP.mint : Color.primary)
+            Text(title).foregroundStyle(.secondary).font(XP.pixelFont(8))
+            Text(value).font(XP.pixelFont(13)).foregroundStyle(accent ? XP.mint : Color.primary)
         }
         .padding(5).frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white).overlay(Rectangle().stroke(XP.shadow, lineWidth: 1))
+        .background(.white).overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
     }
 }
 
@@ -305,7 +309,7 @@ private struct XPTitleButtonStyle: ButtonStyle {
             .foregroundStyle(.white)
             .frame(width: 20, height: 20)
             .background(configuration.isPressed ? Color.red.opacity(0.75) : Color(red: 0.9, green: 0.25, blue: 0.12))
-            .overlay(Rectangle().stroke(.white.opacity(0.8), lineWidth: 1))
+            .overlay(Rectangle().strokeBorder(.white.opacity(0.8), lineWidth: 1, antialiased: false))
     }
 }
 
@@ -333,6 +337,17 @@ private struct PixelDogIcon: View {
     }
 }
 
+private struct PixelBatteryIcon: View {
+    var body: some View {
+        Canvas { context, _ in
+            context.fill(Path(CGRect(x: 4, y: 0, width: 5, height: 2)), with: .color(.black))
+            context.fill(Path(CGRect(x: 2, y: 2, width: 9, height: 14)), with: .color(.black))
+            context.fill(Path(CGRect(x: 3, y: 3, width: 7, height: 12)), with: .color(Color(red: 63/255, green: 143/255, blue: 45/255)))
+            context.fill(Path(CGRect(x: 4, y: 4, width: 2, height: 9)), with: .color(Color(red: 126/255, green: 199/255, blue: 88/255)))
+        }
+    }
+}
+
 private struct PetSpriteView: View {
     let animation: String
     let frame: Int
@@ -342,6 +357,7 @@ private struct PetSpriteView: View {
         let sprite = SpriteSheet.frame(animation: animation, index: frame)
         Image(nsImage: sprite.image)
             .interpolation(.none)
+            .antialiased(false)
             .resizable()
             .frame(width: 200, height: 200)
             .scaleEffect(x: facing, y: 1)
