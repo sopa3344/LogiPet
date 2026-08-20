@@ -59,7 +59,7 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
 enum FontRegistry {
     static func registerBundledFonts() {
         for name in ["Galmuri11", "NeoDunggeunmo"] {
-            guard let url = Bundle.module.url(
+            guard let url = ResourceLocator.url(
                 forResource: name,
                 withExtension: "ttf",
                 subdirectory: "Resources/Fonts"

@@ -360,7 +360,7 @@ private enum SpriteSheet {
     static func frame(animation: String, index: Int) -> SpriteFrame {
         let key = "\(animation):\(index)"
         if let cached = cache[key] { return cached }
-        guard let url = Bundle.module.url(
+        guard let url = ResourceLocator.url(
             forResource: "Golden-Retriever-\(animation)",
             withExtension: "png",
             subdirectory: "Resources/Pets/GoldenRetriever"

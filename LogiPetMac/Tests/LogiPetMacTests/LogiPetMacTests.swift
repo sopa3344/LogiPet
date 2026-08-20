@@ -10,4 +10,17 @@ final class LogiPetMacTests: XCTestCase {
         XCTAssertEqual(state.leftClicks, 0)
         XCTAssertEqual(state.actionRingActions, 0)
     }
+
+    func testBundledResourcesCanBeLocatedWithoutBundleModule() {
+        XCTAssertNotNil(ResourceLocator.url(
+            forResource: "Galmuri11",
+            withExtension: "ttf",
+            subdirectory: "Resources/Fonts"
+        ))
+        XCTAssertNotNil(ResourceLocator.url(
+            forResource: "Golden-Retriever-idle",
+            withExtension: "png",
+            subdirectory: "Resources/Pets/GoldenRetriever"
+        ))
+    }
 }
