@@ -47,6 +47,8 @@ final class PixelTextView: NSView {
     private var lineLimit = 1
     private var alignment: NSTextAlignment = .left
     private var underline = false
+    private var cachedBitmap: CGImage?
+    private var cachedBitmapSize = CGSize.zero
 
     override var isOpaque: Bool { false }
     override var isFlipped: Bool { false }
@@ -70,6 +72,7 @@ final class PixelTextView: NSView {
         self.lineLimit = max(1, lineLimit)
         self.alignment = alignment
         self.underline = underline
+        cachedBitmap = nil
         setAccessibilityLabel(text)
         invalidateIntrinsicContentSize()
         needsDisplay = true
@@ -100,27 +103,71 @@ final class PixelTextView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         guard !text.isEmpty, let context = NSGraphicsContext.current?.cgContext else { return }
 
+        let logicalSize = CGSize(
+            width: max(1, ceil(bounds.width)),
+            height: max(1, ceil(bounds.height))
+        )
+        if cachedBitmap == nil || cachedBitmapSize != logicalSize {
+            cachedBitmap = makeOneXBitmap(size: logicalSize)
+            cachedBitmapSize = logicalSize
+        }
+        guard let bitmap = cachedBitmap else { return }
+
         context.saveGState()
         context.clip(to: bounds)
+        context.interpolationQuality = .none
         context.setAllowsAntialiasing(false)
         context.setShouldAntialias(false)
-        context.setAllowsFontSmoothing(false)
-        context.setShouldSmoothFonts(false)
-        context.setShouldSubpixelPositionFonts(false)
-        context.setShouldSubpixelQuantizeFonts(true)
-
-        if lineLimit == 1 {
-            drawSingleLine(in: context)
-        } else {
-            let path = CGPath(rect: bounds, transform: nil)
-            let framesetter = CTFramesetterCreateWithAttributedString(attributedString())
-            let frame = CTFramesetterCreateFrame(framesetter, CFRange(), path, nil)
-            CTFrameDraw(frame, context)
-        }
+        context.draw(bitmap, in: bounds)
         context.restoreGState()
     }
 
-    private func drawSingleLine(in context: CGContext) {
+    override func setFrameSize(_ newSize: NSSize) {
+        if frame.size != newSize {
+            cachedBitmap = nil
+        }
+        super.setFrameSize(newSize)
+    }
+
+    /// Rasterize at one bitmap pixel per SwiftUI point. On a Retina display the
+    /// resulting pixels are enlarged to 2×2 device pixels with nearest-neighbour
+    /// sampling, rather than letting Core Text redraw the glyphs at Retina scale.
+    private func makeOneXBitmap(size: CGSize) -> CGImage? {
+        guard let bitmap = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: Int(size.width),
+            pixelsHigh: Int(size.height),
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        ), let bitmapContext = NSGraphicsContext(bitmapImageRep: bitmap)?.cgContext else {
+            return nil
+        }
+
+        bitmapContext.clear(CGRect(origin: .zero, size: size))
+        bitmapContext.setAllowsAntialiasing(false)
+        bitmapContext.setShouldAntialias(false)
+        bitmapContext.setAllowsFontSmoothing(false)
+        bitmapContext.setShouldSmoothFonts(false)
+        bitmapContext.setShouldSubpixelPositionFonts(false)
+        bitmapContext.setShouldSubpixelQuantizeFonts(true)
+
+        if lineLimit == 1 {
+            drawSingleLine(in: bitmapContext, bounds: CGRect(origin: .zero, size: size))
+        } else {
+            let path = CGPath(rect: CGRect(origin: .zero, size: size), transform: nil)
+            let framesetter = CTFramesetterCreateWithAttributedString(attributedString())
+            let frame = CTFramesetterCreateFrame(framesetter, CFRange(), path, nil)
+            CTFrameDraw(frame, bitmapContext)
+        }
+        return bitmap.cgImage
+    }
+
+    private func drawSingleLine(in context: CGContext, bounds: CGRect) {
         let sourceLine = CTLineCreateWithAttributedString(attributedString())
         var ascent: CGFloat = 0
         var descent: CGFloat = 0
