@@ -14,6 +14,7 @@ on:
       - "scripts/install-macos.sh"
       - "scripts/package-macos-dmg.sh"
       - "scripts/package-macos.sh"
+      - "scripts/test-macos-app-launch.sh"
       - ".github/workflows/build-macos.yml"
   release:
     types: [published]
@@ -31,9 +32,11 @@ jobs:
           - name: Apple Silicon
             runner: macos-15
             output: LogiPet-macOS-Apple-Silicon
+            smoke-mode: full
           - name: Intel
             runner: macos-15-intel
             output: LogiPet-macOS-Intel
+            smoke-mode: resources
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +58,8 @@ jobs:
           RESOURCE_BUNDLE="$(find "$BIN_PATH" -maxdepth 1 -type d -name '*LogiPetMac*.bundle' | head -1)"
           test -n "$RESOURCE_BUNDLE"
           bash scripts/package-macos.sh "$BIN_PATH/LogiPetMac" "$RESOURCE_BUNDLE" "${{ matrix.output }}"
+      - name: Smoke-test packaged app launch
+        run: bash scripts/test-macos-app-launch.sh "dist/LogiPet-macOS.app" "${{ matrix.smoke-mode }}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output }}
@@ -105,6 +110,7 @@ jobs:
           codesign --verify --deep --strict "dist/LogiPet-macOS.app"
           lipo -archs "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" | grep -q arm64
           lipo -archs "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" | grep -q x86_64
+          bash scripts/test-macos-app-launch.sh "dist/LogiPet-macOS.app"
       - name: Package drag-and-drop DMG
         run: bash scripts/package-macos-dmg.sh "dist/LogiPet-macOS.app" "LogiPet-macOS"
       - name: Test DMG contents
