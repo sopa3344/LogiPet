@@ -1,6 +1,5 @@
 import AppKit
 import CoreText
-import QuartzCore
 import SwiftUI
 
 @main
@@ -53,8 +52,7 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isMovableByWindowBackground = true
-        let hostingView = PixelHostingView(rootView: PetWindowView().environmentObject(model))
-        window.contentView = hostingView
+        window.contentView = NSHostingView(rootView: PetWindowView().environmentObject(model))
         window.setContentSize(size)
 
         if let screen = NSScreen.main {
@@ -78,26 +76,6 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         model.stop()
-    }
-}
-
-final class PixelHostingView<Content: View>: NSHostingView<Content> {
-    override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-        updateBackingScale()
-    }
-
-    override func viewDidChangeBackingProperties() {
-        super.viewDidChangeBackingProperties()
-        updateBackingScale()
-    }
-
-    private func updateBackingScale() {
-        wantsLayer = true
-        layer?.contentsScale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1
-        layer?.magnificationFilter = .nearest
-        layer?.minificationFilter = .nearest
-        layerContentsRedrawPolicy = .onSetNeedsDisplay
     }
 }
 
