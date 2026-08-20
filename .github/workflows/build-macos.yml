@@ -33,10 +33,12 @@ jobs:
             runner: macos-15
             output: LogiPet-macOS-Apple-Silicon
             smoke-mode: full
+            screenshot: dist/LogiPet-macOS-Retina-preview.png
           - name: Intel
             runner: macos-15-intel
             output: LogiPet-macOS-Intel
             smoke-mode: resources
+            screenshot: ""
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +61,16 @@ jobs:
           test -n "$RESOURCE_BUNDLE"
           bash scripts/package-macos.sh "$BIN_PATH/LogiPetMac" "$RESOURCE_BUNDLE" "${{ matrix.output }}"
       - name: Smoke-test packaged app launch
+        env:
+          LOGIPET_SCREENSHOT_PATH: ${{ matrix.screenshot }}
         run: bash scripts/test-macos-app-launch.sh "dist/LogiPet-macOS.app" "${{ matrix.smoke-mode }}"
+      - name: Upload Retina visual QA preview
+        if: matrix.screenshot != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: LogiPet-macOS-Retina-preview
+          path: dist/LogiPet-macOS-Retina-preview.png
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output }}

@@ -1,5 +1,6 @@
 import AppKit
 import CoreText
+import QuartzCore
 import SwiftUI
 
 @main
@@ -52,15 +53,21 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isMovableByWindowBackground = true
-        window.contentView = NSHostingView(rootView: PetWindowView().environmentObject(model))
+        let hostingView = PixelHostingView(rootView: PetWindowView().environmentObject(model))
+        window.contentView = hostingView
         window.setContentSize(size)
 
         if let screen = NSScreen.main {
             let visible = screen.visibleFrame
-            window.setFrameOrigin(NSPoint(
+            let desiredFrame = NSRect(origin: NSPoint(
                 x: visible.maxX - size.width - 14,
                 y: visible.minY + 12
-            ))
+            ), size: size)
+            let alignedFrame = screen.backingAlignedRect(
+                desiredFrame,
+                options: [.alignAllEdgesNearest]
+            )
+            window.setFrame(alignedFrame, display: false)
         }
 
         window.orderFrontRegardless()
@@ -71,6 +78,26 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         model.stop()
+    }
+}
+
+final class PixelHostingView<Content: View>: NSHostingView<Content> {
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        updateBackingScale()
+    }
+
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties()
+        updateBackingScale()
+    }
+
+    private func updateBackingScale() {
+        wantsLayer = true
+        layer?.contentsScale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1
+        layer?.magnificationFilter = .nearest
+        layer?.minificationFilter = .nearest
+        layerContentsRedrawPolicy = .onSetNeedsDisplay
     }
 }
 
