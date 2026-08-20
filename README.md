@@ -29,6 +29,39 @@ LogiPet은 MX Master 4를 사용하는 동안 함께 걷고 쉬며 하루를 기
 
 ### macOS
 
+#### DMG로 설치 — 가장 간단함
+
+Releases에서 `LogiPet-macOS.dmg`를 받은 다음 Finder에서 더블클릭합니다.
+하나의 DMG가 Apple Silicon과 Intel Mac을 모두 지원하므로 칩 종류를 고를 필요가
+없습니다.
+
+1. 열린 창에서 `LogiPet`을 오른쪽의 `Applications`로 드래그합니다.
+2. 응용 프로그램 폴더에서 LogiPet을 Control-클릭하고 **열기**를 선택합니다.
+3. Bluetooth와 손쉬운 사용 권한을 허용합니다.
+
+터미널과 별도 설치 마법사는 필요하지 않습니다. Mac 계정이나 관리 설정에 따라
+Applications 폴더로 복사할 때 권한 확인이 표시될 수 있습니다.
+
+Developer ID 공증을 받지 않은 데모이므로 처음 파일을 열 때 차단될 수 있습니다.
+이 경우 LogiPet을 한 번 실행한 후 **시스템 설정 → 개인정보
+보호 및 보안 → 확인 없이 열기**를 누른 뒤 다시 실행합니다.
+
+#### 터미널 한 줄 설치
+
+터미널을 열고 아래 명령 한 줄을 붙여 넣습니다. Mac 칩을 자동으로 구분해 최신
+배포본을 `~/Applications/LogiPet-macOS.app`에 설치하고 실행합니다. 관리자 암호는
+필요하지 않습니다.
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/sopa3344/LogiPet/main/scripts/install-macos.sh)"
+```
+
+설치 과정에서 실제 다운로드 주소를 보여주고 계속할지 한 번 확인합니다. 이 방법은
+Developer ID 공증을 대신해 GitHub Release에서 받은 LogiPet 앱의 격리 속성만
+제거합니다. 공개된 설치 스크립트와 다운로드 주소를 확인한 뒤 사용하세요.
+
+#### ZIP으로 직접 설치
+
 1. Mac 종류에 맞는 파일을 받습니다.
    - M1·M2·M3·M4 등: `LogiPet-macOS-Apple-Silicon.zip`
    - Intel Mac: `LogiPet-macOS-Intel.zip`
@@ -168,7 +201,8 @@ macOS에서는 운영체제의 전역 마우스 이벤트 API 특성상 MX Maste
 ## 삭제하기
 
 - Windows: 압축을 푼 LogiPet 폴더와 `%LOCALAPPDATA%\LogiPet` 폴더를 삭제합니다.
-- macOS: 응용 프로그램의 `LogiPet-macOS.app`과
+- macOS: `~/Applications/LogiPet-macOS.app` 또는 응용 프로그램 폴더의
+  `LogiPet.app`·`LogiPet-macOS.app`과
   `~/Library/Application Support/LogiPet` 폴더를 삭제합니다.
 - Actions Ring 플러그인은 Logi Options+의 플러그인 관리 화면에서 제거합니다.
 

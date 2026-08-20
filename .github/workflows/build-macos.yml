@@ -11,6 +11,8 @@ on:
     branches: [master, main]
     paths:
       - "LogiPetMac/**"
+      - "scripts/install-macos.sh"
+      - "scripts/package-macos-dmg.sh"
       - "scripts/package-macos.sh"
       - ".github/workflows/build-macos.yml"
   release:
@@ -38,6 +40,11 @@ jobs:
       - name: Test
         working-directory: LogiPetMac
         run: swift test
+      - name: Test one-command installer
+        env:
+          LOGIPET_ASSUME_YES: "1"
+          LOGIPET_SKIP_LAUNCH: "1"
+        run: bash scripts/install-macos.sh
       - name: Build release
         working-directory: LogiPetMac
         run: swift build -c release
@@ -59,3 +66,72 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         run: gh release upload "$RELEASE_TAG" "dist/${{ matrix.output }}.zip" --clobber
+
+  universal-dmg:
+    name: Universal DMG
+    needs: build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: LogiPet-macOS-Apple-Silicon
+          path: ${{ runner.temp }}/apple-silicon
+      - uses: actions/download-artifact@v4
+        with:
+          name: LogiPet-macOS-Intel
+          path: ${{ runner.temp }}/intel
+      - name: Create universal app
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/apple-app" "$RUNNER_TEMP/intel-app" dist
+          ditto -x -k \
+            "$RUNNER_TEMP/apple-silicon/LogiPet-macOS-Apple-Silicon.zip" \
+            "$RUNNER_TEMP/apple-app"
+          ditto -x -k \
+            "$RUNNER_TEMP/intel/LogiPet-macOS-Intel.zip" \
+            "$RUNNER_TEMP/intel-app"
+          ditto \
+            "$RUNNER_TEMP/apple-app/LogiPet-macOS.app" \
+            "dist/LogiPet-macOS.app"
+          lipo -create \
+            "$RUNNER_TEMP/apple-app/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" \
+            "$RUNNER_TEMP/intel-app/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" \
+            -output "$RUNNER_TEMP/LogiPetMac-universal"
+          cp "$RUNNER_TEMP/LogiPetMac-universal" \
+            "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac"
+          chmod +x "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac"
+          codesign --force --deep --sign - "dist/LogiPet-macOS.app"
+          codesign --verify --deep --strict "dist/LogiPet-macOS.app"
+          lipo -archs "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" | grep -q arm64
+          lipo -archs "dist/LogiPet-macOS.app/Contents/MacOS/LogiPetMac" | grep -q x86_64
+      - name: Package drag-and-drop DMG
+        run: bash scripts/package-macos-dmg.sh "dist/LogiPet-macOS.app" "LogiPet-macOS"
+      - name: Test DMG contents
+        shell: bash
+        run: |
+          MOUNT_DIR="$(mktemp -d "$RUNNER_TEMP/logipet-mount.XXXXXX")"
+          DEVICE="$(hdiutil attach \
+            -readonly \
+            -nobrowse \
+            -mountpoint "$MOUNT_DIR" \
+            "dist/LogiPet-macOS.dmg" | awk '/Apple_HFS|Apple_APFS/ { print $1; exit }')"
+          trap 'hdiutil detach "$DEVICE" >/dev/null 2>&1 || true' EXIT
+          test -d "$MOUNT_DIR/LogiPet.app"
+          test -L "$MOUNT_DIR/Applications"
+          codesign --verify --deep --strict "$MOUNT_DIR/LogiPet.app"
+          lipo -archs "$MOUNT_DIR/LogiPet.app/Contents/MacOS/LogiPetMac" | grep -q arm64
+          lipo -archs "$MOUNT_DIR/LogiPet.app/Contents/MacOS/LogiPetMac" | grep -q x86_64
+          hdiutil detach "$DEVICE" >/dev/null
+          trap - EXIT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LogiPet-macOS-Universal
+          path: dist/LogiPet-macOS.dmg
+          if-no-files-found: error
+      - name: Attach DMG to release
+        if: github.event_name == 'release' || inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" "dist/LogiPet-macOS.dmg" --clobber
