@@ -9,19 +9,14 @@ enum ResourceLocator {
         if let resourceURL = Bundle.main.resourceURL {
             searchRoots.append(resourceURL)
         }
-        searchRoots.append(Bundle.main.bundleURL)
+        let mainBundleURL = Bundle.main.bundleURL
+        searchRoots.append(mainBundleURL)
+        if mainBundleURL.pathExtension == "xctest" {
+            searchRoots.append(mainBundleURL.deletingLastPathComponent())
+        }
 
         if let executableDirectory = Bundle.main.executableURL?.deletingLastPathComponent() {
             searchRoots.append(executableDirectory)
-
-            var testDirectory = executableDirectory
-            while testDirectory.pathExtension != "xctest",
-                  testDirectory.path != testDirectory.deletingLastPathComponent().path {
-                testDirectory.deleteLastPathComponent()
-            }
-            if testDirectory.pathExtension == "xctest" {
-                searchRoots.append(testDirectory.deletingLastPathComponent())
-            }
         }
 
         var visited = Set<String>()
