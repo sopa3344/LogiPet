@@ -29,6 +29,22 @@ LogiPet은 MX Master 4를 사용하는 동안 함께 걷고 쉬며 하루를 기
 
 ### macOS
 
+#### 간편 설치 — 권장
+
+터미널을 열고 아래 명령 한 줄을 붙여 넣습니다. Mac 칩을 자동으로 구분해 최신
+배포본을 `~/Applications/LogiPet-macOS.app`에 설치하고 실행합니다. 관리자 암호는
+필요하지 않습니다.
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/sopa3344/LogiPet/main/scripts/install-macos.sh)"
+```
+
+설치 과정에서 실제 다운로드 주소를 보여주고 계속할지 한 번 확인합니다. 이 방법은
+Developer ID 공증을 대신해 GitHub Release에서 받은 LogiPet 앱의 격리 속성만
+제거합니다. 공개된 설치 스크립트와 다운로드 주소를 확인한 뒤 사용하세요.
+
+#### ZIP으로 직접 설치
+
 1. Mac 종류에 맞는 파일을 받습니다.
    - M1·M2·M3·M4 등: `LogiPet-macOS-Apple-Silicon.zip`
    - Intel Mac: `LogiPet-macOS-Intel.zip`
@@ -168,7 +184,8 @@ macOS에서는 운영체제의 전역 마우스 이벤트 API 특성상 MX Maste
 ## 삭제하기
 
 - Windows: 압축을 푼 LogiPet 폴더와 `%LOCALAPPDATA%\LogiPet` 폴더를 삭제합니다.
-- macOS: 응용 프로그램의 `LogiPet-macOS.app`과
+- macOS: `~/Applications/LogiPet-macOS.app` 또는 응용 프로그램 폴더의
+  `LogiPet-macOS.app`과
   `~/Library/Application Support/LogiPet` 폴더를 삭제합니다.
 - Actions Ring 플러그인은 Logi Options+의 플러그인 관리 화면에서 제거합니다.
 

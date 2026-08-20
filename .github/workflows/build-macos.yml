@@ -11,6 +11,7 @@ on:
     branches: [master, main]
     paths:
       - "LogiPetMac/**"
+      - "scripts/install-macos.sh"
       - "scripts/package-macos.sh"
       - ".github/workflows/build-macos.yml"
   release:
@@ -38,6 +39,11 @@ jobs:
       - name: Test
         working-directory: LogiPetMac
         run: swift test
+      - name: Test one-command installer
+        env:
+          LOGIPET_ASSUME_YES: "1"
+          LOGIPET_SKIP_LAUNCH: "1"
+        run: bash scripts/install-macos.sh
       - name: Build release
         working-directory: LogiPetMac
         run: swift build -c release
