@@ -50,4 +50,16 @@ enum ResourceLocator {
         return nil
 #endif
     }
+
+    static var requiredResourcesAvailable: Bool {
+        url(
+            forResource: "Galmuri11",
+            withExtension: "ttf",
+            subdirectory: "Resources/Fonts"
+        ) != nil && url(
+            forResource: "Golden-Retriever-idle",
+            withExtension: "png",
+            subdirectory: "Resources/Pets/GoldenRetriever"
+        ) != nil
+    }
 }

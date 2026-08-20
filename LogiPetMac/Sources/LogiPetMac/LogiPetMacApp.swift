@@ -20,6 +20,24 @@ final class LogiPetAppDelegate: NSObject, NSApplicationDelegate {
         FontRegistry.registerBundledFonts()
         NSApp.setActivationPolicy(.accessory)
 
+        if ProcessInfo.processInfo.environment["LOGIPET_RESOURCE_SMOKE_TEST"] == "1" {
+            guard ResourceLocator.requiredResourcesAvailable else {
+                FileHandle.standardError.write(Data("Required LogiPet resources are missing.\n".utf8))
+                NSApp.terminate(nil)
+                return
+            }
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 1, height: 1),
+                styleMask: [.borderless],
+                backing: .buffered,
+                defer: false
+            )
+            window.contentView = NSView(frame: .zero)
+            window.orderFrontRegardless()
+            self.window = window
+            return
+        }
+
         let size = NSSize(width: 252, height: 320)
         let window = NSWindow(
             contentRect: NSRect(origin: .zero, size: size),

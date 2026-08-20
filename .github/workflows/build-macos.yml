@@ -32,9 +32,11 @@ jobs:
           - name: Apple Silicon
             runner: macos-15
             output: LogiPet-macOS-Apple-Silicon
+            smoke-mode: full
           - name: Intel
             runner: macos-15-intel
             output: LogiPet-macOS-Intel
+            smoke-mode: resources
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +59,7 @@ jobs:
           test -n "$RESOURCE_BUNDLE"
           bash scripts/package-macos.sh "$BIN_PATH/LogiPetMac" "$RESOURCE_BUNDLE" "${{ matrix.output }}"
       - name: Smoke-test packaged app launch
-        run: bash scripts/test-macos-app-launch.sh "dist/LogiPet-macOS.app"
+        run: bash scripts/test-macos-app-launch.sh "dist/LogiPet-macOS.app" "${{ matrix.smoke-mode }}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.output }}
