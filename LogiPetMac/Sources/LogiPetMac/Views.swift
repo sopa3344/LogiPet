@@ -9,10 +9,10 @@ private enum XP {
     static let shadow = Color(red: 172/255, green: 168/255, blue: 153/255)
     static let mint = Color(red: 45/255, green: 212/255, blue: 143/255)
     static let balloon = Color(red: 1, green: 1, blue: 225/255)
-
-    static func pixelFont(_ size: CGFloat) -> Font {
-        .custom("Galmuri11", fixedSize: size)
-    }
+    static let text = NSColor(calibratedWhite: 0.08, alpha: 1)
+    static let blueText = NSColor(calibratedRed: 0, green: 84/255, blue: 227/255, alpha: 1)
+    static let navyText = NSColor(calibratedRed: 0, green: 51/255, blue: 153/255, alpha: 1)
+    static let mintText = NSColor(calibratedRed: 45/255, green: 212/255, blue: 143/255, alpha: 1)
 }
 
 struct PetWindowView: View {
@@ -81,11 +81,11 @@ struct PetWindowView: View {
     private var titleBar: some View {
         HStack(spacing: 5) {
             PixelDogIcon().frame(width: 16, height: 16)
-            Text("LogiPet - \(model.petName)")
-                .font(XP.pixelFont(11))
-                .foregroundStyle(.white)
+            PixelText(text: "LogiPet - \(model.petName)", size: 11, color: .white)
             Spacer()
-            Button("×") { NSApp.terminate(nil) }
+            Button { NSApp.terminate(nil) } label: {
+                PixelText(text: "×", size: 11, color: .white, alignment: .center)
+            }
                 .buttonStyle(XPTitleButtonStyle())
         }
         .padding(.horizontal, 5)
@@ -123,20 +123,18 @@ struct PetWindowView: View {
 
     private var statusBar: some View {
         HStack(spacing: 4) {
-            Text("L")
-                .font(XP.pixelFont(7))
+            PixelText(text: "L", size: 7, color: XP.text, alignment: .center)
                 .frame(width: 11, height: 11)
                 .background(model.batteryConnected ? XP.mint : Color.orange)
                 .overlay(Rectangle().strokeBorder(Color.gray, lineWidth: 1, antialiased: false))
-            Text(model.batteryConnected ? "MX 연결됨" : "MX 연결 대기")
-            Text("·").foregroundStyle(.secondary)
-            Text(model.activity.label).foregroundStyle(XP.blue)
+            PixelText(text: model.batteryConnected ? "MX 연결됨" : "MX 연결 대기", size: 9, color: XP.text)
+            PixelText(text: "·", size: 9, color: .secondaryLabelColor)
+            PixelText(text: model.activity.label, size: 9, color: XP.blueText)
                 .lineLimit(1)
             Spacer(minLength: 2)
             Divider().frame(height: 14)
-            Text(model.clockText).help(model.dateText)
+            PixelText(text: model.clockText, size: 9, color: XP.text).help(model.dateText)
         }
-        .font(XP.pixelFont(9))
         .padding(.horizontal, 4)
         .frame(height: 22)
         .background(XP.face)
@@ -160,12 +158,9 @@ private struct BatteryGroup: View {
                         .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
                     }
                     .frame(height: 13)
-                    Text(model.batteryText)
-                        .font(XP.pixelFont(11))
-                        .foregroundStyle(batteryColor)
+                    PixelText(text: model.batteryText, size: 11, color: batteryNSColor)
                 }
-                Text(model.speech)
-                    .font(XP.pixelFont(9))
+                PixelText(text: model.speech, size: 9, color: XP.text)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
@@ -181,6 +176,14 @@ private struct BatteryGroup: View {
         case 60...: XP.mint
         case 25...: .orange
         default: .red
+        }
+    }
+
+    private var batteryNSColor: NSColor {
+        switch model.batteryLevel ?? 0 {
+        case 60...: XP.mintText
+        case 25...: .systemOrange
+        default: .systemRed
         }
     }
 }
@@ -199,8 +202,7 @@ private struct XPGroupBox<Content: View>: View {
             content.padding(.horizontal, 7).padding(.top, 9).padding(.bottom, 5)
                 .overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
                 .padding(.top, 6)
-            Text(title)
-                .font(XP.pixelFont(9))
+            PixelText(text: title, size: 9, color: XP.text)
                 .padding(.horizontal, 4)
                 .background(XP.face)
                 .padding(.leading, 8)
@@ -219,19 +221,25 @@ private struct SpeechBalloon: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(name).foregroundStyle(Color(red: 0, green: 51/255, blue: 153/255))
+                    PixelText(text: name, size: 9, color: XP.navyText)
                     Spacer()
-                    Button("×", action: close).buttonStyle(.plain)
+                    Button(action: close) {
+                        PixelText(text: "×", size: 9, color: XP.text, alignment: .center)
+                    }.buttonStyle(.plain)
                 }
-                Text(text).lineLimit(3).fixedSize(horizontal: false, vertical: true)
+                PixelText(text: text, size: 9, color: XP.text, lineLimit: 3)
+                    .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 4) {
-                    Button("오늘 활동 ▶", action: showActivity)
-                    Text("|").foregroundStyle(.secondary)
-                    Button("MX 커뮤니티 ▶", action: openCommunity)
+                    Button(action: showActivity) {
+                        PixelText(text: "오늘 활동 ▶", size: 9, color: .systemBlue, underline: true)
+                    }
+                    PixelText(text: "|", size: 9, color: .secondaryLabelColor)
+                    Button(action: openCommunity) {
+                        PixelText(text: "MX 커뮤니티 ▶", size: 9, color: .systemBlue, underline: true)
+                    }
                 }
-                .buttonStyle(.plain).foregroundStyle(.blue).underline()
+                .buttonStyle(.plain)
             }
-            .font(XP.pixelFont(9))
             .padding(8)
             .frame(width: 218, alignment: .leading)
             .background(XP.balloon)
@@ -249,19 +257,20 @@ private struct StatsPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("▦  \(model.petName) 상태").foregroundStyle(.white)
+                PixelText(text: "▦  \(model.petName) 상태", size: 11, color: .white)
                 Spacer()
-                Button("×") { model.showStats = false }.buttonStyle(XPTitleButtonStyle())
+                Button { model.showStats = false } label: {
+                    PixelText(text: "×", size: 11, color: .white, alignment: .center)
+                }.buttonStyle(XPTitleButtonStyle())
             }
-            .font(XP.pixelFont(11))
             .padding(.horizontal, 5).frame(height: 28)
             .background(LinearGradient(colors: [XP.blueLight, XP.blue], startPoint: .top, endPoint: .bottom))
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text(Date().formatted(.dateTime.month().day()))
+                    PixelText(text: Date().formatted(.dateTime.month().day()), size: 9, color: XP.text)
                     Spacer()
-                    Text("macOS 입력 · 로컬 저장").font(XP.pixelFont(8)).foregroundStyle(.secondary)
+                    PixelText(text: "macOS 입력 · 로컬 저장", size: 8, color: .secondaryLabelColor)
                 }
                 HStack(spacing: 5) {
                     StatCard(title: "왼쪽 클릭", value: "\(model.state.leftClicks.formatted())번")
@@ -273,11 +282,14 @@ private struct StatsPanel: View {
                 }
                 StatCard(title: "휠 회전", value: "\(Int(model.state.wheelTurns).formatted())회")
                 if !model.inputPermissionGranted {
-                    Text("클릭 통계를 위해 시스템 설정 › 개인정보 보호 및 보안 › 손쉬운 사용에서 LogiPet을 허용해 주세요.")
-                        .font(XP.pixelFont(8)).foregroundStyle(.red).lineLimit(2)
+                    PixelText(
+                        text: "클릭 통계를 위해 시스템 설정 › 개인정보 보호 및 보안 › 손쉬운 사용에서 LogiPet을 허용해 주세요.",
+                        size: 8,
+                        color: .systemRed,
+                        lineLimit: 2
+                    )
                 }
             }
-            .font(XP.pixelFont(9))
             .padding(8)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(XP.face)
@@ -294,8 +306,8 @@ private struct StatCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(title).foregroundStyle(.secondary).font(XP.pixelFont(8))
-            Text(value).font(XP.pixelFont(13)).foregroundStyle(accent ? XP.mint : Color.primary)
+            PixelText(text: title, size: 8, color: .secondaryLabelColor)
+            PixelText(text: value, size: 13, color: accent ? XP.mintText : XP.text)
         }
         .padding(5).frame(maxWidth: .infinity, alignment: .leading)
         .background(.white).overlay(Rectangle().strokeBorder(XP.shadow, lineWidth: 1, antialiased: false))
@@ -305,8 +317,6 @@ private struct StatCard: View {
 private struct XPTitleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 11, weight: .bold))
-            .foregroundStyle(.white)
             .frame(width: 20, height: 20)
             .background(configuration.isPressed ? Color.red.opacity(0.75) : Color(red: 0.9, green: 0.25, blue: 0.12))
             .overlay(Rectangle().strokeBorder(.white.opacity(0.8), lineWidth: 1, antialiased: false))
